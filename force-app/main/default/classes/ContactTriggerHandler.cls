@@ -40,7 +40,29 @@ public with sharing class ContactTriggerHandler
             encData=con.Encrypted_Contact_Id__c;
         }
         //update the contact with the encrypted Data in the custom field
-        update(contoadd);
+        if(!contoadd.isEmpty())
+        {
+            try{
+                List<Database.SaveResult> updateContacts= Database.update(contoadd, true);
+                for(Database.SaveResult sr: updateContacts)
+                {
+                    if(sr.isSuccess())
+                    {
+                        System.debug('Updation Successful, Id of the contact is ---> '+sr.getId());
+                    }
+                    else{
+                        for(Database.Error er: sr.getErrors())
+                        {
+                            System.debug('Error in updating contact ---> '+er.getMessage());
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                System.debug('An Error occured ---> '+e.getMessage());
+            } 
+        }
 
         //Encode the Data properly along with Special Characters
         String encodedContactId= EncodingUtil.urlEncode(encData,'UTF-8');
