@@ -1,0 +1,12 @@
+<template>
+    <div style="background-color: blanchedalmond, purple;">
+        <lightning-card variant="Narrow" title="Add Details">
+              <p>Enter SNo<lightning-input value={sno} onchange={snoHandler}></lightning-input></p>
+              <p>Enter Name<lightning-input value={name} onchange={nameHandler}></lightning-input></p>  
+              <p>Enter Email<lightning-input value={email} onchange={emailHandler}></lightning-input></p>  
+              <lightning-button variant="brand" label="Save Details" onclick={saveHandler}></lightning-button>
+
+            </lightning-card>
+            <p if:true={output}>Data Saved Successfully {output}</p>
+    </div>
+</template>

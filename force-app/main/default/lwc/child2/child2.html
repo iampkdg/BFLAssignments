@@ -1,0 +1,13 @@
+<template>
+    <div style="font-size: 18px; color:burlywood">
+        This is from the child component
+        <br>
+        <lightning-card title="Child component">
+            <p class="slds-p-horizontal_small">
+                Enter Data: <lightning-input value={data} onchange={dataHandler}></lightning-input>
+                <lightning-button label="Send contents" slot="actions" onclick={sendContenthandler}></lightning-button>
+            </p>
+        </lightning-card>
+    </div>
+    
+</template>

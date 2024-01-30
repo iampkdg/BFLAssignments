@@ -1,0 +1,28 @@
+<template>
+<div style ='height: 500px;'>
+    <lightning-card title='Contact Details'>
+        <template if:true={visibleContactList}>
+                <lightning-datatable 
+                key-field="Id"
+                data={visibleContactList}
+                columns={contactColunm}>
+            </lightning-datatable>
+            </template>
+    </lightning-card>
+    <c-pagination-Comp records={contacts} onsliced={sliceHandler}></c-pagination-Comp>
+</div>
+
+<!-- <div style='height: 500px'>
+    <lightning-card title='Account Details'>
+        <template if:true={visibleAccountList}>
+            <lightning-datatable 
+                key-field="Id"
+                data={visibleAccountList}
+                columns={accountColumn}>
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+    <c-pagination-Comp records={accounts} onsliced={accountsliceHandler}></c-pagination-Comp>
+</div> -->
+
+</template>

@@ -1,0 +1,23 @@
+<template>
+    <div>
+        <h1 style="background-color: aliceblue;  font-size: medium;">Welcome to the LWC</h1><br>
+        <p>
+            Let's start
+            
+        </p>
+        <div style="background-color: bisque;">
+            <table border=3px>
+                <tr>
+                    <th>Data</th>
+                    <th>Name</th>
+                </tr>
+                <tr for:item='test' for:each={detailstable} key={test.dataId}>
+                    <td>{test.dataId}</td>
+                    <td>{test.dataname}</td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+    
+</template>

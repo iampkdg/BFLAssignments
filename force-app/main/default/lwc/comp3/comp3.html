@@ -1,0 +1,19 @@
+<template>
+    <div>
+        <lightning-input label="Enter Batch ID" value={bID} onchange={bIdHandler}></lightning-input>
+        <lightning-input label="Enter Batch Name" value={bName} onchange={bNameHandler}></lightning-input>
+        <lightning-input label="Enter Batch Count" value={bCount} onchange={bCountHandler}></lightning-input>
+        <button onclick={addBatchHandler}>Add Details</button>
+    </div>
+    <hr>
+    <div style="color: aqua;">
+     <template for:item="batchInfo" for:each={batchInfoArray} for:index="ind">
+        <lightning-card key={batchInfo.batchID} title={batchInfo.batchName}>
+            <button onclick={delBatchHandler} value={ind}>Delete</button>
+            <p>Batch ID : {batchInfo.batchID}</p>
+            <p>Batch Name : {batchInfo.batchName}</p>
+            <p>Batch Count : {batchInfo.batchCount}</p>
+        </lightning-card>
+     </template>
+    </div>
+</template>

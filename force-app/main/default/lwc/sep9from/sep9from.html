@@ -1,0 +1,17 @@
+<template>
+
+    <div>
+        <lightning-card  title="Hello and Navigate">
+            <p>
+                Enter:
+                
+                <lightning-input value={myData}
+                onchange={myDataHandler}></lightning-input>
+            </p>
+            <lightning-button label="New" slot="actions" variant="success" onclick={destinationComphandler}></lightning-button>
+            <p class="slds-p-horizontal_small">Card Body (custom component)</p>
+            
+        </lightning-card>
+    </div>
+    
+</template>

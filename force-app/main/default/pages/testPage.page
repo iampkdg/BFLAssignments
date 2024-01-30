@@ -1,0 +1,16 @@
+<apex:page controller="SelectListController">
+    <apex:form >
+        <apex:selectList value="{!field1}" multiselect="false" size="1">
+            <!-- apex:actionSupport will handle the changing of the selectList -->
+            <apex:actionSupport event="onchange" action="{!getSecondaryPickVals}" reRender="field2" />
+            <apex:selectOptions value="{!selectList}" />
+        </apex:selectList>
+        <apex:selectList id="field2" value="{!field2}" multiselect="false" size="1">
+            <apex:actionSupport event="onchange" action="{!getThirdPickVals}" reRender="field3" />
+            <apex:selectOptions value="{!secondarySelectList}" />
+        </apex:selectList>
+        <apex:selectList id="field3" value="{!field3}" multiselect="false" size="1">
+            <apex:selectOptions value="{!thirdSelectList}" />
+        </apex:selectList>
+    </apex:form>
+</apex:page>

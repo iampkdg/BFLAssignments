@@ -1,0 +1,11 @@
+<template>
+    <div style="font-size: 16px; color:aquamarine">
+        <lightning-input label="Enter the first name" value={inputFname} onchange={inputFnameHandler}></lightning-input>
+        <lightning-input label="Enter the last name" value={inputLname} onchnage={inputLnameHandler}></lightning-input>
+        <lightning-input label="Enter the city" value={inputCity} onchnage={inputCityHandler}></lightning-input>
+        <br>
+        <lightning-button label="Send details to child component" onclick={addData}>Press</lightning-button>
+    </div>
+    <c-details></c-details>
+    
+</template>
