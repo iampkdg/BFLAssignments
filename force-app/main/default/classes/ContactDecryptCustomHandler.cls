@@ -1,10 +1,15 @@
+/***************
+ * This ContactDecryptCustomHandler is for the customContactExtPage.page and does the following operation ->
+ *      1. Decryptes the encrypted Id from the URL and shows the data of the Contact
+***************/
+
 public with sharing class ContactDecryptCustomHandler {
     public Contact contact{get;set;}
 
-    public ContactDecryptCustomHandler() { 
+    public ContactDecryptCustomHandler() 
+    { 
         contact= new Contact();
     }
-
     public void retrieveContact() 
     {
         String secretKey;
@@ -14,7 +19,7 @@ public with sharing class ContactDecryptCustomHandler {
         List<Encryption_Key__mdt> encryptionMdtList= Encryption_Key__mdt.getAll().values();
         if(encryptionMdtList[0].label != NULL)
         {
-            secretKey= encryptionMdtList[0].label;
+            secretKey= encryptionMdtList[0].Key__c;
         }
         else{
             System.debug('No Secret Key found');
@@ -65,6 +70,5 @@ public with sharing class ContactDecryptCustomHandler {
         {
             System.debug('Decryption Failed'+e.getMessage());
         }
-        
     }
 }

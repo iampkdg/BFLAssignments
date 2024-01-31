@@ -1,23 +1,30 @@
-/***************
- * This handler class is for ContactTrigger.apxt and does the following operations:
- * 1. ContactTriggerHandlerMethod() ->
- *      Encodes the contact Id and stores it in a custom field name Encrypted_Contact_Id__c.
- *      Creates an URL with the encrypted Id.
- ***************/
+/********************
+ * This batch class performs the following operation
+ * 1. Updates the Contact's custom field Encrypted_Contact_Id__c with the particular contacts Id in encrypted form
+ ********************/
 
-
-public with sharing class ContactTriggerHandler 
+public with sharing class ContactFieldUpdationBatch implements Database.Batchable<SObject>, Schedulable 
 {
-    public static String passKey;
-    public static String encData;
-    
-    public static String ContactTriggerHanlderMethod(List<Contact> contacts)
+    //method to query the records
+    public Database.QueryLocator start (Database.BatchableContext bc)
     {
-       
-        List<Contact> contactList= [Select id, Encrypted_Contact_Id__c From Contact where id =: contacts];
-        List<Contact> contoadd= new List<Contact>();
+        return Database.getQueryLocator('Select ID, Name,Encrypted_Contact_Id__c from Contact');
+    }
+
+    //method to make the batch schedulable
+    public void execute(SchedulableContext sc)
+    {
+        ContactFieldUpdationBatch batch= new ContactFieldUpdationBatch();
+        Database.executeBatch(batch, 200);
+    }
+
+    //method to perform logic 
+    public void execute(Database.BatchableContext bc, List<Contact> contacts)
+    {
         String secretKey;
-        
+        String encData;
+        List<Contact> contoAdd= new List<Contact>();
+
         //use a secret key and retrieve it from the metadata using metadata methods
         List<Encryption_Key__mdt> encryptionMdtList= Encryption_Key__mdt.getAll().values();
         if(encryptionMdtList[0].label != NULL)
@@ -26,7 +33,7 @@ public with sharing class ContactTriggerHandler
         }
 
 
-        for(Contact con: contactList)
+        for(Contact con: contacts)
         {
             //data to encrypt
             String conId= con.Id;
@@ -72,12 +79,11 @@ public with sharing class ContactTriggerHandler
             } 
         }
 
-        //Encode the Data properly along with Special Characters
-        String encodedContactId= EncodingUtil.urlEncode(encData,'UTF-8');
+    }
 
-        //create the custom URL with the VF page name
-        String vfPageURL= '/apex/customContactExtPage?encryptId='+encodedContactId;
-        System.debug('Encrypted Page URL is ---> '+vfPageURL);
-        return vfPageURL;
+    //finish method
+    public void finish(Database.BatchableContext bc)
+    {
+        System.debug('Batch Ran');
     }
 }
