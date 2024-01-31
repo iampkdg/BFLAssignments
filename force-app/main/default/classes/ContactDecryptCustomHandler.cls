@@ -12,7 +12,7 @@ public with sharing class ContactDecryptCustomHandler {
     }
     public void retrieveContact() 
     {
-        String secretKey;
+        String secretKey; 
         String checkValidEncryptString;
 
         //use a secret key and retrieve it from the metadata using metadata methods
@@ -33,14 +33,14 @@ public with sharing class ContactDecryptCustomHandler {
         //check if encrypted Id is there in the URL
         if(String.isBlank(encryptedContactId))
         {
-            System.debug('No Encrypted Id found in the URL');
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'THE CONTACT DATA CANNOT BE DISPLAYED DUE TO UNAVAILABLE ID, PLEASE CONTACT ADMIN!!'));
         }
         //check if the Encrypted Id is valid
         checkValidEncryptString= encryptedContactId;
         checkValidEncryptString.replaceAll('=','');
         if(Math.mod(checkValidEncryptString.length(), 4)!= 0)
         {
-            System.debug('The Encrypted Id is not Valid');
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'THE URL IS NOT VALID!!! PLEASE ENTER A VALID URL'));
         }
     
         try
@@ -62,7 +62,7 @@ public with sharing class ContactDecryptCustomHandler {
         }
         else
         {
-            System.debug('No Contact Found that matches the decrypted Id');
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,'NO CONTACT DATA AVAIALABLE. THANKYOU'));
         }
 
         }
