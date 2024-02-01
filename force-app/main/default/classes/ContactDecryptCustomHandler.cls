@@ -1,14 +1,21 @@
 /***************
  * This ContactDecryptCustomHandler is for the customContactExtPage.page and does the following operation ->
  *      1. Decryptes the encrypted Id from the URL and shows the data of the Contact
+ *      2. Decryptes the URL and shows the related Quote
+ *      3. Decryptes the URL and shows the related Quote Line Items
 ***************/
 
-public with sharing class ContactDecryptCustomHandler {
+public with sharing class ContactDecryptCustomHandler 
+{
     public Contact contact{get;set;}
+    public Quote quoteDisplay{get;set;}
+    public List<QuoteLineItem> quoteLineItemDisplay {get;set;}
 
     public ContactDecryptCustomHandler() 
     { 
         contact= new Contact();
+        quoteDisplay= new Quote();
+        quoteLineItemDisplay =new List<QuoteLineItem>();
     }
     public void retrieveContact() 
     {
@@ -21,9 +28,10 @@ public with sharing class ContactDecryptCustomHandler {
         {
             secretKey= encryptionMdtList[0].Key__c;
         }
-        else{
+        else
+        {
             System.debug('No Secret Key found');
-            return;
+            return; 
         }
 
         //retrieve the encryptedId from the PageURL
@@ -55,10 +63,23 @@ public with sharing class ContactDecryptCustomHandler {
         System.debug('Decrypted Contact Id ---> '+decryptId);
 
         //query out the contacts details from the decrypted ID
-        List<contact> contactListToDisplay= [Select Id, Name, Email from Contact where Id =: decryptId LIMIT 1];
-        if(!contactListToDisplay.isEmpty())
+        List<Contact> contactListToDisplay= [Select Id, Name, Email from Contact where Id =: decryptId LIMIT 1];
+        Set<Id> contactId= new Set<Id>();
+        for(Contact con: contactListToDisplay)
+        {
+            contactId.add(con.Id);
+        }
+        System.debug('Contact Id ---> '+contactId);
+        
+        //query out the Quote Details for that specific Contact
+        List<Quote> quoteData=[SELECT Id, Name, Email, ContactId from Quote Where ContactId =: contactId];
+        if(contactListToDisplay!= Null)
         {
             contact=contactListToDisplay[0];
+            quoteDisplay=quoteData[0];
+            
+            //get the QuoteLineItems for the respective Quote
+            quoteLineItemDisplay= [SELECT ID, TotalPrice from QuoteLineItem where QuoteId =: quoteData[0].Id];
         }
         else
         {
@@ -68,7 +89,9 @@ public with sharing class ContactDecryptCustomHandler {
         }
         catch(Exception e)
         {
-            System.debug('Decryption Failed'+e.getMessage());
+            System.debug('Decryption Failed --> '+e.getMessage());
+            System.debug('Cause of Failure --> '+e.getCause());
+            System.debug('Error in Line Number --> '+e.getLineNumber());
         }
     }
 }

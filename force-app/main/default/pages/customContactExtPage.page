@@ -1,9 +1,29 @@
 <apex:page controller="ContactDecryptCustomHandler" tabStyle="Contact" action="{!retrieveContact}">
 <apex:pageMessages/>
     <apex:form >
-        <apex:outputText value="Contact Name: {!contact.Name}"/>
+        <apex:pageBlock>
+            <apex:outputText value="Contact Name: {!contact.Name}"/> 
+            <br/>
+            <br/>
+            <apex:outputText value="Email: {!contact.email}"/>
+        </apex:pageBlock>
         <br/>
+        <apex:pageBlock>
+            <apex:outputText value="Quote Name: {!quoteDisplay.Name}"/>
+            <br/>
+            <br/>
+            <apex:outputText value="Quote Email: {!quoteDisplay.Email}"/>
+        </apex:pageBlock>
         <br/>
-        <apex:outputText value="Email: {!contact.email}"/>
+        <apex:pageBlock>
+            <apex:pageBlockTable value ="{!quoteLineItemDisplay}" var="qli">
+                <apex:column headerValue="Id">
+                    <apex:outputText value ="{!qli.Id}"/>
+                </apex:column>
+                <apex:column headerValue="Total Price">
+                    <apex:outputText value="{!qli.TotalPrice}"/>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
     </apex:form> 
 </apex:page>

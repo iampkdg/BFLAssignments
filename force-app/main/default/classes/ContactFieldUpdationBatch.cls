@@ -2,12 +2,11 @@
  * This batch class performs the following operation
  * 1. Updates the Contact's custom field Encrypted_Contact_Id__c with the particular contacts Id in encrypted form
  * 2. Sends email to a receiver with list of Encrypted URL's
+ * 3. Does not send email anymore
  ********************/
 
-public with sharing class ContactFieldUpdationBatch implements Database.Batchable<SObject>, Database.Stateful, Schedulable
+public with sharing class ContactFieldUpdationBatch implements Database.Batchable<SObject>, Schedulable
 {
-    List<String> pageUrlList = new List<String>();
-
     //method to query the records
     public Database.QueryLocator start (Database.BatchableContext bc)
     {
@@ -50,22 +49,14 @@ public with sharing class ContactFieldUpdationBatch implements Database.Batchabl
 			Blob encryptedData=crypto.encryptWithManagedIV('AES128', key,data);
 			System.debug('Encrypted Data ---> '+EncodingUtil.base64Encode(encryptedData));
 
-            //copy the encrypted data to the custom field in contact
-            con.Encrypted_Contact_Id__c= EncodingUtil.base64Encode(encryptedData);
+            //copy the encrypted data to the custom field in contact with proper UTF-8 padding
+            encData= EncodingUtil.base64Encode(encryptedData);
+            String encodedContactId= EncodingUtil.urlEncode(encData,'UTF-8');
+            con.Encrypted_Contact_Id__c= encodedContactId;
             contoadd.add(con); 
 
-            //copy the encrypted Id in another variable for further use
-            encData=con.Encrypted_Contact_Id__c;
-
-            //create the URL for the VF Page
-            //Encode with proper Characters
-            String encodedContactId= EncodingUtil.urlEncode(encData,'UTF-8');
-
-            //create the custom URL with the VF page name
-            String vfPageURL= '/apex/customContactExtPage?encryptId='+encodedContactId;
-            pageUrlList.add(vfPageURL);
         }
-        System.debug('Page URL List is --> '+pageUrlList);
+
         //update the contact with the encrypted Data in the custom field
         if(!contoadd.isEmpty())
         {
@@ -97,22 +88,6 @@ public with sharing class ContactFieldUpdationBatch implements Database.Batchabl
     //finish method to send email with the Page URL
     public void finish(Database.BatchableContext bc)
     {
-        //construct the HTML body
-        String htmlBody = '<html><body><p>The URLs are provided below.</p>';
-        htmlBody += '<ul>';
-        for (String url : pageUrlList) 
-        {
-            htmlBody += '<li>' + url + '</li>';
-        }
-        htmlBody += '</ul></body></html>';
-
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        String[] toAddresses = new String[] {'pankaj.dasgupta@theblueflamelabs.com'};
-        mail.setToAddresses(toAddresses);
-        mail.setSenderDisplayName('Encrypted URLs');
-        mail.setSubject('Hi, you have the list of the page URLS');
-        mail.setHtmlBody(htmlBody);
-        Messaging.sendEmail(new Messaging.SingleEmailMessage[]{mail});
-        System.debug('Mail Sent');
+        System.debug('Batch Run Complete');
     }
 }
