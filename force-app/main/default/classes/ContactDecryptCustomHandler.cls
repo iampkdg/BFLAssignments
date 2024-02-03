@@ -5,17 +5,19 @@
  *      3. Decryptes the URL and shows the related Quote Line Items
 ***************/
 
-public with sharing class ContactDecryptCustomHandler 
+public without sharing class ContactDecryptCustomHandler 
 {
     public Contact contact{get;set;}
-    public Quote quoteDisplay{get;set;}
     public List<QuoteLineItem> quoteLineItemDisplay {get;set;}
+    public List<Quote> quoteDisplayList{get;set;}
+    public Map<Id, List<QuoteLineItem>> quoteLineItemMap { get; set; }
 
     public ContactDecryptCustomHandler() 
-    { 
+    {   
         contact= new Contact();
-        quoteDisplay= new Quote();
         quoteLineItemDisplay =new List<QuoteLineItem>();
+        quoteDisplayList= new List<Quote>();
+        quoteLineItemMap = new Map<Id,List<QuoteLineItem>>();
     }
     public void retrieveContact() 
     {
@@ -33,6 +35,7 @@ public with sharing class ContactDecryptCustomHandler
             System.debug('No Secret Key found');
             return; 
         }
+        System.debug('Secret Key --> '+secretKey);
 
         //retrieve the encryptedId from the PageURL
         String encryptedContactId= ApexPages.currentPage().getParameters().get('encryptId');
@@ -56,7 +59,21 @@ public with sharing class ContactDecryptCustomHandler
         //Start the decryption
         Blob decryptedId= EncodingUtil.base64Decode(encryptedContactId);
         Blob key= EncodingUtil.base64Decode(secretKey);
-        Blob decrypt = Crypto.decryptWithManagedIV('AES128',Key, decryptedId);
+
+        Integer keyLenght= key.size();
+        Integer keyLengthbits= keyLenght*8;
+        Blob decrypt= Blob.valueOf('');
+            if(keyLengthbits == 128){
+                decrypt = Crypto.decryptWithManagedIV('AES128',Key, decryptedId);
+            }
+            else if(keyLengthbits == 192){
+                decrypt = Crypto.decryptWithManagedIV('AES192',Key, decryptedId);
+            }
+            else if(keyLengthbits == 256){
+                decrypt = Crypto.decryptWithManagedIV('AES256',Key, decryptedId);
+            }
+
+        //Blob decrypt = Crypto.decryptWithManagedIV('AES128',Key, decryptedId);
 
         //convert the Blob to string
         String decryptId= decrypt.toString();
@@ -73,13 +90,33 @@ public with sharing class ContactDecryptCustomHandler
         
         //query out the Quote Details for that specific Contact
         List<Quote> quoteData=[SELECT Id, Name, Email, ContactId from Quote Where ContactId =: contactId];
+        Set<Id> quoteIds= new Set<Id>();
+        for(Quote q: quoteData)
+        {
+            quoteIds.add(q.Id);
+        }
+
+        //get the QuoteLineItem for the quote
+        Map<Id, List<QuoteLineItem>> latestQuoteLineItemMap = new Map<Id, List<QuoteLineItem>>();
+        for(QuoteLineItem qli:[SELECT Id, TotalPrice, QuoteId from QuoteLineItem WHERE QuoteId =: quoteIds])
+        {
+            if(!latestQuoteLineItemMap.containsKey(qli.QuoteId))
+            {
+                latestQuoteLineItemMap.put(qli.QuoteId, new List<QuoteLineItem>());
+            }
+            latestQuoteLineItemMap.get(qli.QuoteId).add(qli);
+        }
+
+        //send data to VF Page
         if(contactListToDisplay!= Null)
         {
             contact=contactListToDisplay[0];
-            quoteDisplay=quoteData[0];
-            
-            //get the QuoteLineItems for the respective Quote
-            quoteLineItemDisplay= [SELECT ID, TotalPrice from QuoteLineItem where QuoteId =: quoteData[0].Id];
+            quoteDisplayList= quoteData;
+            for(Quote q: quoteDisplayList)
+            {
+                quoteLineItemMap.put(q.Id, latestQuoteLineItemMap.get(q.Id));
+            }
+            System.debug('Quote Line Item Map --> '+quoteLineItemMap);
         }
         else
         {

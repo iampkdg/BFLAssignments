@@ -1,0 +1,3 @@
+<!-- This VF Page is linked to a List View Button On Contact that sends an Email to the Selected Contacts -->
+<apex:page standardController="Contact" recordSetVar="contacts" extensions="SendEmailQuotesController" showHeader="true" action="{!sendEmail}">
+</apex:page> 

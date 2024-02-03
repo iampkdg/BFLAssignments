@@ -1,29 +1,64 @@
-<apex:page controller="ContactDecryptCustomHandler" tabStyle="Contact" action="{!retrieveContact}">
+<!-- This VF Page Receives the Encrypted Id from the URL and then Decryptes and shows the Details  -->
+<apex:page controller="ContactDecryptCustomHandler" tabStyle="Contact" action="{!retrieveContact}" showHeader="false">
+<!-- Style for the VF Page -->
+<style>
+    .quoteTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .quoteTable th,
+    .quoteTable td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .quoteTable th {
+        background-color: #f2f2f2;
+    }
+    .columnHeader {
+        font-weight: bold;
+    }
+    .quoteLineItemTable {
+        margin-top: 10px;
+    }
+</style>
+
+
+
+
+<!-- The VF Page Content -->
 <apex:pageMessages/>
     <apex:form >
-        <apex:pageBlock>
+        <apex:pageBlock title="Contact Information">
             <apex:outputText value="Contact Name: {!contact.Name}"/> 
             <br/>
             <br/>
             <apex:outputText value="Email: {!contact.email}"/>
-        </apex:pageBlock>
-        <br/>
-        <apex:pageBlock>
-            <apex:outputText value="Quote Name: {!quoteDisplay.Name}"/>
             <br/>
-            <br/>
-            <apex:outputText value="Quote Email: {!quoteDisplay.Email}"/>
         </apex:pageBlock>
-        <br/>
-        <apex:pageBlock>
-            <apex:pageBlockTable value ="{!quoteLineItemDisplay}" var="qli">
-                <apex:column headerValue="Id">
-                    <apex:outputText value ="{!qli.Id}"/>
+        <apex:pageBlock title="Related Quote Information">
+            <apex:pageBlockTable value="{!quoteDisplayList}" var="quote" styleClass="quoteTable">
+                <apex:column headerValue="Name" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.Name}"/>
                 </apex:column>
-                <apex:column headerValue="Total Price">
-                    <apex:outputText value="{!qli.TotalPrice}"/>
+                <apex:column headerValue="Email" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.Email}"/>
+                </apex:column>
+                <apex:column headerValue="Id" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.Id}"/>
+                </apex:column>
+                <apex:column headerValue="Quote Line Item" styleClass="columnHeader">
+                    <apex:pageBlockTable value="{!quoteLineItemMap[quote.Id]}" var="ql" styleClass="quoteLineItemTable">
+                        <apex:column headerValue="Id" styleClass="columnHeader" >
+                            <apex:outputText value="{!ql.Id}"/>
+                        </apex:column>
+                        <apex:column headerValue="Total Price" styleClass="columnHeader">
+                            <apex:outputText value="{!ql.TotalPrice}"/>
+                        </apex:column>
+                        </apex:pageBlockTable>
                 </apex:column>
             </apex:pageBlockTable>
         </apex:pageBlock>
+        <br/>
     </apex:form> 
 </apex:page>

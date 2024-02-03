@@ -41,7 +41,19 @@ public with sharing class ContactTriggerHandler
             System.debug('Key is ---> '+key);
 
             //encrypt the data
-			Blob encryptedData=crypto.encryptWithManagedIV('AES128', key,data);
+            Integer keyLenght= key.size();
+            Integer keyLengthbits= keyLenght*8;
+            Blob encryptedData;
+            if(keyLengthbits == 128){
+                encryptedData=crypto.encryptWithManagedIV('AES128', key,data);
+            }
+            else if(keyLengthbits==192){
+                encryptedData=crypto.encryptWithManagedIV('AES192', key,data);
+            }
+            else if(keyLengthbits==256){
+                encryptedData=crypto.encryptWithManagedIV('AES256', key,data);
+            }
+			//Blob encryptedData=crypto.encryptWithManagedIV('AES128', key,data);
 			System.debug('Encrypted Data ---> '+EncodingUtil.base64Encode(encryptedData));
 
             //copy the encrypted data to the custom field in contact with proper UTF-8 padding

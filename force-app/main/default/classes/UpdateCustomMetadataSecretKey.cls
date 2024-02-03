@@ -1,15 +1,20 @@
-/***************
+/*************** 
  *This class updates a Custom Metadata type named Encryption_Key__mdt ->
  *      1. Updates a custom field Named Key__c with a key used for encryption
+ *      2. Updates the Secret Key based on the Algo Input from the User.
+ * 
+ * ***This class is referred to createSecretKeyForEncryption.js*** 
 ***************/
 
 public with sharing class UpdateCustomMetadataSecretKey {
 
     @AuraEnabled
-    public static void updateRecord()
+    public static void updateRecord(Integer algo)
     {
+        Integer a= algo;
+        System.debug('Algo from User--> '+a);
         //generate key 
-        Blob secretKey= Crypto.generateAesKey(128);
+        Blob secretKey= Crypto.generateAesKey(a);
         String key= EncodingUtil.base64Encode(secretKey);
         System.debug('Key is ---> '+key);
 
