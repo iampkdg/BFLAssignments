@@ -11,6 +11,8 @@ public without sharing class ContactDecryptCustomHandler
     public List<QuoteLineItem> quoteLineItemDisplay {get;set;}
     public List<Quote> quoteDisplayList{get;set;}
     public Map<Id, List<QuoteLineItem>> quoteLineItemMap { get; set; }
+    public String selectedQuoteIds { get; set; }
+    public Boolean hideButton{get;set;}
 
     public ContactDecryptCustomHandler() 
     {   
@@ -18,7 +20,9 @@ public without sharing class ContactDecryptCustomHandler
         quoteLineItemDisplay =new List<QuoteLineItem>();
         quoteDisplayList= new List<Quote>();
         quoteLineItemMap = new Map<Id,List<QuoteLineItem>>();
+        hideButton=false;
     }
+
     public void retrieveContact() 
     {
         String secretKey; 
@@ -33,7 +37,7 @@ public without sharing class ContactDecryptCustomHandler
         else
         {
             System.debug('No Secret Key found');
-            return; 
+            
         }
         System.debug('Secret Key --> '+secretKey);
 
@@ -89,7 +93,7 @@ public without sharing class ContactDecryptCustomHandler
         System.debug('Contact Id ---> '+contactId);
         
         //query out the Quote Details for that specific Contact
-        List<Quote> quoteData=[SELECT Id, Name, Email, ContactId from Quote Where ContactId =: contactId];
+        List<Quote> quoteData=[SELECT Id, Name, Email, IsSyncing, OpportunityId, ContactId from Quote Where ContactId =: contactId];
         Set<Id> quoteIds= new Set<Id>();
         for(Quote q: quoteData)
         {
@@ -98,7 +102,7 @@ public without sharing class ContactDecryptCustomHandler
 
         //get the QuoteLineItem for the quote
         Map<Id, List<QuoteLineItem>> latestQuoteLineItemMap = new Map<Id, List<QuoteLineItem>>();
-        for(QuoteLineItem qli:[SELECT Id, TotalPrice, QuoteId from QuoteLineItem WHERE QuoteId =: quoteIds])
+        for(QuoteLineItem qli:[SELECT Id, TotalPrice, Product2Id ,Quantity, UnitPrice, QuoteId from QuoteLineItem WHERE QuoteId =: quoteIds])
         {
             if(!latestQuoteLineItemMap.containsKey(qli.QuoteId))
             {
@@ -114,21 +118,52 @@ public without sharing class ContactDecryptCustomHandler
             quoteDisplayList= quoteData;
             for(Quote q: quoteDisplayList)
             {
-                quoteLineItemMap.put(q.Id, latestQuoteLineItemMap.get(q.Id));
+            quoteLineItemMap.put(q.Id, latestQuoteLineItemMap.get(q.Id));
             }
             System.debug('Quote Line Item Map --> '+quoteLineItemMap);
+            
         }
         else
         {
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.INFO,'NO CONTACT DATA AVAIALABLE. THANKYOU'));
+           
         }
-
         }
         catch(Exception e)
         {
             System.debug('Decryption Failed --> '+e.getMessage());
             System.debug('Cause of Failure --> '+e.getCause());
             System.debug('Error in Line Number --> '+e.getLineNumber());
+            
         }
+    }
+
+    //method to Sync Quote With Opportunity
+    public PageReference selectQuote()
+    {
+        System.debug('Entered Start Sync method');
+        System.debug('Selected Ids are --> '+selectedQuoteIds);
+        if(selectedQuoteIds!= NULL)
+        {
+            Quote quotesToUpdate= [Select Id, IsSyncing, OpportunityId from Quote where Id =: selectedQuoteIds LIMIT 1];
+            if (quotesToUpdate.OpportunityId != null) 
+            {
+                    Opportunity relatedOpportunity = [SELECT Id, Name, SyncedQuoteId FROM Opportunity WHERE Id = :quotesToUpdate.OpportunityId LIMIT 1];
+            
+                    // Quote is synced with an Opportunity
+                    if (relatedOpportunity != null) 
+                    {
+                        relatedOpportunity.SyncedQuoteId = quotesToUpdate.Id;
+                        Database.update(relatedOpportunity);
+                        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.CONFIRM,'QUOTE SYNCED, PLEASE REFRESH PAGE TO SEE THE STATE OF SYNC!!!'));
+                    }
+            }
+            else if(quotesToUpdate.OpportunityId == null)
+            {
+                System.debug('No Opportunity Found');
+                ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'NO OPPORTUNITY FOUND FOR THE QUOTE'));
+            }
+        }
+        return null;
     }
 }
