@@ -1,0 +1,13 @@
+<template>
+    <lightning-card class="slds-var-m-around_medium">
+        <div style='height: 500px'>
+            <lightning-card title='Contact Details'>
+                    <lightning-datatable 
+                        key-field="Id"
+                        data={contact}
+                        columns={contactColumn}>
+                    </lightning-datatable>
+            </lightning-card>
+        </div> 
+    </lightning-card>
+</template>
