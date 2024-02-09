@@ -1,0 +1,16 @@
+<template>
+    <lightning-tabset>
+        <lightning-tab label="Account Details- First Tab">
+            <c-account-tab-one 
+            rec-id={recordId}></c-account-tab-one>  
+        </lightning-tab>
+        <lightning-tab label="Account Details- Second Tab">
+            <c-account-tab-two
+            rec-id={recordId}></c-account-tab-two>
+        </lightning-tab>
+        <lightning-tab label="Contacts related to Account- Third Tab">
+            <c-contact-details-tab3
+            rec-id={recordId}></c-contact-details-tab3>
+        </lightning-tab>
+    </lightning-tabset>
+</template> 
