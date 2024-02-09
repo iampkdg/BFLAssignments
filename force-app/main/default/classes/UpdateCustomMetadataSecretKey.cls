@@ -8,6 +8,10 @@
 
 public with sharing class UpdateCustomMetadataSecretKey {
 
+    @TestVisible
+    private static String metadataKey='';
+
+
     @AuraEnabled
     public static void updateRecord(Integer algo)
     {
@@ -45,9 +49,17 @@ public with sharing class UpdateCustomMetadataSecretKey {
             container.addMetadata(mdata);
 
             //enqueue for deployment
+            
             Id jobId;
-            jobId= Metadata.Operations.enqueueDeployment(container, null);
-            System.debug(jobId);
+            if(test.isRunningTest())
+            {
+                metadataKey = key;
+            }
+            else{
+                jobId= Metadata.Operations.enqueueDeployment(container, null);
+                System.debug(jobId);
+            }
+            
         }
     } 
 }

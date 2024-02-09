@@ -8,7 +8,7 @@ public with sharing class QuoteDetailsController
    @AuraEnabled(cacheable= true)
    public static void getRelatedContactEmail(Id quoteId)
    {
-    try 
+    try  
     {
         //Query out the Quote
         List<Quote> quoteList= [Select Id, Name, Contact.Email, Contact.Id from Quote where Id =:quoteId];

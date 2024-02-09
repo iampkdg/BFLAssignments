@@ -63,7 +63,7 @@ export default class CreateSecretKeyForEncryption extends LightningElement {
 
         })
         .then(batchResult =>{
-            alert('Batch Started Successfully',batchResult);
+            alert('ID Encryption Started',batchResult);
         })
         .catch(error =>{
             alert('Secret key not Created',error.detail);
