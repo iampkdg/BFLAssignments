@@ -1,0 +1,75 @@
+<!-- This VF Page Receives the Encrypted Id from the URL and then Decryptes and shows the Details  -->
+<apex:page controller="ContactDecryptCustomHandler" tabStyle="Contact" action="{!retrieveContact}" showHeader="false">
+<!-- Style for the VF Page -->
+<style>
+    .quoteTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .quoteTable th,
+    .quoteTable td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    .quoteTable th {
+        background-color: #f2f2f2;
+    }
+    .columnHeader {
+        font-weight: bold;
+    }
+    .quoteLineItemTable {
+        margin-top: 10px;
+    }
+</style>
+
+
+
+
+<!-- The VF Page Content -->
+<apex:pageMessages id="showMessage"/>
+    <apex:form id="reRenderPage">
+        <apex:pageBlock title="Contact Information">
+            <apex:outputText value="Contact Name: {!contact.Name}"/> 
+            <br/>
+            <br/>
+            <apex:outputText value="Email: {!contact.email}"/>
+            <br/>
+        </apex:pageBlock>
+        <apex:pageBlock title="Related Quote Information" id="relatedQuoteInfo">
+            <apex:pageBlockTable value="{!quoteDisplayList}" var="quote" styleClass="quoteTable">
+                <apex:column headerValue="Name" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.Name}"/>
+                </apex:column>
+                <apex:column headerValue="Email" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.Email}"/>
+                </apex:column>
+                <apex:column headerValue="Is Synced" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.IsSyncing}"/>
+                </apex:column>
+                <apex:column headerValue="Opportunity Id" styleClass="columnHeader">
+                    <apex:outputText value="{!quote.OpportunityId}"/>
+                </apex:column>
+                <apex:column headerValue="Sync With Opportunity" styleClass="columnHeader">
+                    <apex:commandButton value="Click to Sync" action="{!selectQuote}" reRender="showMessage,relatedQuoteInfo" rendered="{!NOT(ISNULL(quote.OpportunityId))}"
+                        disabled="{!quote.IsSyncing}">
+                        <apex:param name="selectedQuoteId" value="{!quote.Id}" assignTo="{!selectedQuoteIds}"/>
+                    </apex:commandButton>
+                </apex:column>
+                <apex:column headerValue="Quote Line Item" styleClass="columnHeader">
+                    <apex:pageBlockTable value="{!quoteLineItemMap[quote.Id]}" var="ql" styleClass="quoteLineItemTable">
+                        <apex:column headerValue="Quantity" styleClass="columnHeader">
+                            <apex:outputText value="{!ql.Quantity}"/>
+                        </apex:column>
+                        <apex:column headerValue="Unit Price" styleClass="columnHeader">
+                            <apex:outputText value="{!ql.UnitPrice}"/>
+                        </apex:column>
+                            <apex:column headerValue="Total Price" styleClass="columnHeader">
+                                <apex:outputText value="{!ql.TotalPrice}"/>
+                            </apex:column>
+                    </apex:pageBlockTable>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form> 
+</apex:page>
